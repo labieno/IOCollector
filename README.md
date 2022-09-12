@@ -18,3 +18,12 @@ options:
 -c IOC_name    specify the name to create an .ioc file (OpenIOC format)
 
 ```
+
+
+# To-Do
+* Implement URLs for the custom API
+* White list of domains and filter them
+* Clean IOCs: Sometimes it includes legit IPs and strings that look like hashes but they aren't
+* Gather IOCs from pdf files (and other formats)
+* 1 more option to concatenate both procceses (scraping and creating the .ioc files)
+* Automate the scraping of new reports from main vendors
