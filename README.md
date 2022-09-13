@@ -26,7 +26,8 @@ options:
 * Clean IOCs: Sometimes it includes legit IPs and strings that look like hashes but they aren't
 * Extend support for pdf files and other formats / Extend support for platforms such as Twitter or private sources
 * 1 more option (as argument) to concatenate both procceses (scraping and creating the .ioc files)
-* Automate the scraping of new reports from main vendors
+* 1 more option (as argument) to specify path/folder to save written files
+* Web Crawling: Automate the scraping of new reports from main vendors
 
 ## Ideas
 * Gather TTPs used by APTs
