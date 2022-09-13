@@ -22,6 +22,7 @@ options:
 
 ## To-Do
 * Update white list of domains. Implement an option (as argument) to select a custom white list
+* Print text for clarity of actions taken, such as creating files
 * Clean IOCs: Sometimes it includes legit IPs and strings that look like hashes but they aren't
 * Extend support for pdf files and other formats
 * 1 more option (as argument) to concatenate both procceses (scraping and creating the .ioc files)
