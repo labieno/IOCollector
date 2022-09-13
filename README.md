@@ -21,12 +21,14 @@ options:
 
 
 ## To-Do
-* Implement URLs for the custom API
-* White list of domains and filter them
+* Modularity
+* Update white list of domains. Implement an option (as argument) to select a custom white list
+* Print text for clarity of actions taken, such as creating files
 * Clean IOCs: Sometimes it includes legit IPs and strings that look like hashes but they aren't
-* Gather IOCs from pdf files (and other formats)
-* 1 more option to concatenate both procceses (scraping and creating the .ioc files)
-* Automate the scraping of new reports from main vendors
+* Extend support for pdf files and other formats / Extend support for platforms such as Twitter or private sources
+* 1 more option (as argument) to concatenate both procceses (scraping and creating the .ioc files)
+* 1 more option (as argument) to specify path/folder to save written files
+* Web Crawling: Automate the scraping of new reports from main vendors
 
 ## Ideas
 * Gather TTPs used by APTs
