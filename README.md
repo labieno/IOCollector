@@ -14,16 +14,26 @@ options:
 -v, --version  display current version
 -u url         the URL of a report
 -i IOC_name    the name of your IOC
--p             Use the IOCParser API (by default it uses a custom API)
+-p             Use the IOCParser API (by default it uses a custom scraping function)
 -c IOC_name    specify the name to create an .ioc file (OpenIOC format)
 
 ```
 
 
-# To-Do
+## To-Do
 * Implement URLs for the custom API
 * White list of domains and filter them
 * Clean IOCs: Sometimes it includes legit IPs and strings that look like hashes but they aren't
 * Gather IOCs from pdf files (and other formats)
 * 1 more option to concatenate both procceses (scraping and creating the .ioc files)
 * Automate the scraping of new reports from main vendors
+
+## Ideas
+* Gather TTPs used by APTs
+* Threat modeling (types of organizations targeted by groups)
+
+## Changelog
+### 0.3 - 2022-09-13
+#### Added
+* Support for URL gathering
+* Minimal whitelisting for default scraping
