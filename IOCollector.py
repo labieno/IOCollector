@@ -2,10 +2,12 @@
 import argparse
 import os
 import sys
+from urllib.parse import urlparse
 import requests
 import re
 import validators
 import tld
+import urllib
 
 """
 Functions:
@@ -16,8 +18,41 @@ Functions:
         createLists (IOC_name, response) -> Create lists of domains, ips, urls, hashes in C/USERS/username/Downloads/IOC_name
 
     createIOC(IOC_name) -> Create .ioc files from IOC_name directory and lists of domains, ips, urls and hashes.
+
+Examples:
+    https://securelist.com/vilerat-deathstalkers-continuous-strike/107075/
+    https://securelist.com/kimsukys-golddragon-cluster-and-its-c2-operations/107258/
+    https://unit42.paloaltonetworks.com/cloaked-ursa-online-storage-services-campaigns/
+
+Whitelists:
+    whitelistDomains: legit domains
+    whitelistURLs: legit domains (but doesn't include some, for example github.com, which can be used to malicious purposes)
 """
 
+whitelistDomains = ["microsoft.com", "w3.org", "kasperskycontenthub.com", "kaspersky.com", "welivesecurity.com", "google.com", "securelist.com", "securelist.lat", "securelist.ru", "zscaler.com", "orbisius.com", "facebook.com", "yahoo.com", "7-zip.org", "googletagmanager.com", "w.org", "github.com", "mitre.org", "schema.org", "openxmlformats.org", "geoffchappell.com"]
+whitelistURLs = ["microsoft.com", "w3.org", "kasperskycontenthub.com", "kaspersky.com", "welivesecurity.com", "google.com", "securelist.com", "securelist.lat", "securelist.ru", "zscaler.com", "orbisius.com", "facebook.com", "yahoo.com", "7-zip.org", "googletagmanager.com", "w.org", "mitre.org", "schema.org", "openxmlformats.org", "geoffchappell.com"]
+
+def debugging(url):
+    # GET the html
+    r = requests.get(url)
+
+    # Filter defang
+    defangaded = r.text.replace("[.]", ".").replace("hxxp", "http")
+    splited = re.split(';|,|<|>| |\n', defangaded)
+    parent_path = "C:/Users/" + os.getlogin() + "/Downloads/"
+    path = os.path.join(parent_path, "debugg")
+    try:
+        os.mkdir(path)
+        print("[+] Directory '% s' created" % path)
+    except OSError as error: 
+        print(error)
+    
+    with open(path + '/defangaded.txt', 'w') as f:
+        f.write(defangaded)
+    with open(path + '/splited.txt', 'w') as f:
+        for l in splited:
+            f.write(l)
+            f.write("\n")
 
 
 def scrapingIOCs(url, IOC_name):
@@ -35,7 +70,7 @@ def scrapingIOCs(url, IOC_name):
     path = os.path.join(parent_path, IOC_name)
     try:
         os.mkdir(path)
-        print("Directory '% s' created" % path)
+        print("[+] Directory '% s' created" % path)
     except OSError as error: 
         print(error)
 
@@ -65,14 +100,14 @@ def scrapingIOCs(url, IOC_name):
 
     def whitelisting(list):
         result = []
-        whitelist = ["azueracademy.com", "rombaic.com", "openxmlformats.org", "kaspersky.com", "google.com"]
+        
         for d in list:
             if len(d.split(".")) == 2:
-                if d not in whitelist:
+                if d not in whitelistDomains:
                     result.append(d)
             else:
                 dd = d.split(".")
-                if dd[-2] + "." + dd[-1] not in whitelist:
+                if dd[-2] + "." + dd[-1] not in whitelistDomains:
                     result.append(d)
         return result
     
@@ -104,9 +139,25 @@ def scrapingIOCs(url, IOC_name):
             f.write(sha256)
             f.write("\n")
 
+    #URLs
     def findURLs(text):
-        urls = []
-        return urls
+        urls = re.findall("https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)", text)
+        urls = list(set(urls))
+        #Whitelisting:
+        result = []
+        
+        for u in urls:
+            t = urlparse(u).netloc
+            t = '.'.join(t.split('.')[-2:])
+            if t not in whitelistURLs:
+                result.append(u)
+        
+        return result
+
+    with open(path + '/urls.txt', 'w') as f:
+        for l in findURLs(defangaded):
+            f.write(l)
+            f.write("\n")
 
     
 
@@ -129,7 +180,7 @@ def scrapingIOCsPARSER(urli, IOC_name):
         path = os.path.join(parent_path, name)
         try:
             os.mkdir(path)
-            print("Directory '% s' created" % path)
+            print("[+] Directory '% s' created" % path)
         except OSError as error: 
             print(error)
 
@@ -228,19 +279,19 @@ def createIOC(name):
 my_parser = argparse.ArgumentParser(prog = 'IOCollector',
                                     #usage = '%(prog)s [options] URL/IOC_name',
                                     description = 'Specify the URL of a report to gather IOCs and create .ioc files with the OpenIOC format.\nYou can also use the IOCParser API from https://iocparser.com/',
-                                    epilog = 'IOC Generator')
+                                    epilog = 'IOC Generator 0.3 Version')
 
-my_parser.version = 'IOC Generator 0.2 version'
+my_parser.version = 'IOC Generator 0.3 Version'
 my_parser.add_argument('-v',
                        '--version',
                        action='version',
                        help='display current version')
 
 # For exclusivity
-# my_group = my_parser.add_mutually_exclusive_group(required=True)
+my_group = my_parser.add_mutually_exclusive_group(required=True)
 
 # Arguments
-my_parser.add_argument('-u',
+my_group.add_argument('-u',
                        metavar='url',
                        type=str,
                        help='the URL of a report',
@@ -254,7 +305,7 @@ my_parser.add_argument('-i',
                        action='store',
                        nargs=1)
 
-my_parser.add_argument('-c',
+my_group.add_argument('-c',
                        metavar='IOC_name',
                        type=str,
                        help='specify the name for the .ioc (CARMEN)',
@@ -262,7 +313,11 @@ my_parser.add_argument('-c',
                        nargs=1)
 
 my_parser.add_argument('-p',
-                       help='Use the IOCParser API',
+                       help='Use the IOCParser API (by default it uses a custom scraping function)',
+                       action='store_true')
+
+my_parser.add_argument('-d',
+                       help='Show parsed html for debugging purposes.',
                        action='store_true')
 
 
@@ -276,12 +331,16 @@ if args.c:
 elif args.u:
     if args.i:
         if args.p:
-            print("Se utiliza la API de IOCParser")
+            print("[+] Scraping with IOCParser API")
             scrapingIOCsPARSER(args.u[0], args.i[0])
         else:
-            print("Se scrapea con la API custom")
+            print("[+] Scraping with custom API")
             scrapingIOCs(args.u[0], args.i[0])
+    elif args.d:
+        debugging(args.u[0])
     else:
-        print("Specify a name for the IOC folder")
+        print("[x] Specify the name for the IOC folder")
+        sys.exit()
 else:
     print("algo va mal")
+
