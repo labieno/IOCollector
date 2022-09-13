@@ -11,13 +11,17 @@ import urllib
 
 """
 Functions:
-    scrapingIOCs()
+    debugging(url) -> Creates txt files with get request
 
-    scrapingIOCsPARSER(reportURL, IOC_name) -> GET domains, ips, urls, hashes from reportURL with IOCparser API.
-        
+    scrapingIOCs(reportURL, IOC_name) -> custom function for scraping reports (html); creates 4 txt files
+
+    scrapingIOCsPARSER(reportURL, IOC_name) -> GET domains, ips, urls, hashes from reportURL with IOCparser API; creates 4 txt files
         createLists (IOC_name, response) -> Create lists of domains, ips, urls, hashes in C/USERS/username/Downloads/IOC_name
 
     createIOC(IOC_name) -> Create .ioc files from IOC_name directory and lists of domains, ips, urls and hashes.
+
+    twitterCollector(account)
+
 
 Examples:
     https://securelist.com/vilerat-deathstalkers-continuous-strike/107075/
@@ -28,10 +32,11 @@ Whitelists:
     whitelistDomains: legit domains
     whitelistURLs: legit domains (but doesn't include some, for example github.com, which can be used to malicious purposes)
 """
-
+# To be upgraded
 whitelistDomains = ["microsoft.com", "w3.org", "kasperskycontenthub.com", "kaspersky.com", "welivesecurity.com", "google.com", "securelist.com", "securelist.lat", "securelist.ru", "zscaler.com", "orbisius.com", "facebook.com", "yahoo.com", "7-zip.org", "googletagmanager.com", "w.org", "github.com", "mitre.org", "schema.org", "openxmlformats.org", "geoffchappell.com"]
 whitelistURLs = ["microsoft.com", "w3.org", "kasperskycontenthub.com", "kaspersky.com", "welivesecurity.com", "google.com", "securelist.com", "securelist.lat", "securelist.ru", "zscaler.com", "orbisius.com", "facebook.com", "yahoo.com", "7-zip.org", "googletagmanager.com", "w.org", "mitre.org", "schema.org", "openxmlformats.org", "geoffchappell.com"]
 
+# To fix errors and upgrade performance
 def debugging(url):
     # GET the html
     r = requests.get(url)
@@ -159,8 +164,6 @@ def scrapingIOCs(url, IOC_name):
             f.write(l)
             f.write("\n")
 
-    
-
 
 #IOCparser API -> GET request and call createLists
 def scrapingIOCsPARSER(urli, IOC_name):
@@ -219,7 +222,8 @@ def scrapingIOCsPARSER(urli, IOC_name):
     else:
         print("No se puede acceder al report")
 
-# Creacion de .ioc
+
+# Creation of .ioc files (OpenIOC format)
 def createIOC(name):
     description = "-"
     path = "C:/Users/" + os.getlogin() + "/Downloads/" + name + "/"
@@ -273,74 +277,88 @@ def createIOC(name):
             f.write("        </Indicator>\n    </definition>\n</ioc>")
 
 
+def twitterCollector(account):
+    return None
 
 
-# Create the parser
-my_parser = argparse.ArgumentParser(prog = 'IOCollector',
+
+
+# Program logic (Create the parser)
+parser = argparse.ArgumentParser(prog = 'IOCollector',
                                     #usage = '%(prog)s [options] URL/IOC_name',
                                     description = 'Specify the URL of a report to gather IOCs and create .ioc files with the OpenIOC format.\nYou can also use the IOCParser API from https://iocparser.com/',
                                     epilog = 'IOC Generator 0.3 Version')
 
-my_parser.version = 'IOC Generator 0.3 Version'
-my_parser.add_argument('-v',
+parser.version = 'IOC Generator 0.3 Version'
+parser.add_argument('-v',
                        '--version',
                        action='version',
                        help='display current version')
 
 # For exclusivity
-my_group = my_parser.add_mutually_exclusive_group(required=True)
+group = parser.add_mutually_exclusive_group(required=True)
 
 # Arguments
-my_group.add_argument('-u',
+group.add_argument('-u',
                        metavar='url',
                        type=str,
                        help='the URL of a report',
                        action='store',
                        nargs=1)
 
-my_parser.add_argument('-i',
+parser.add_argument('-i',
                        metavar='IOC_name',
                        type=str,
                        help='the name of your IOC',
                        action='store',
                        nargs=1)
 
-my_group.add_argument('-c',
+group.add_argument('-c',
                        metavar='IOC_name',
                        type=str,
                        help='specify the name for the .ioc (CARMEN)',
                        action='store',
                        nargs=1)
 
-my_parser.add_argument('-p',
+parser.add_argument('-p',
                        help='Use the IOCParser API (by default it uses a custom scraping function)',
                        action='store_true')
 
-my_parser.add_argument('-d',
+parser.add_argument('-d',
                        help='Show parsed html for debugging purposes.',
                        action='store_true')
 
 
-# Execute the parse_args() method
-args = my_parser.parse_args()
 
-# Execute tool
-if args.c:
-    createIOC(args.c[0])
-    #print(args.c[0])
-elif args.u:
-    if args.i:
-        if args.p:
-            print("[+] Scraping with IOCParser API")
-            scrapingIOCsPARSER(args.u[0], args.i[0])
+
+def main():
+    # Execute the parse_args() method to look up the arguments an process them
+    args = parser.parse_args()
+
+    # Execute tool
+    if args.c:
+        createIOC(args.c[0])
+        print("[+] Creating .ioc files...")
+    elif args.u:
+        if args.i:
+            if args.p:
+                print("[+] Scraping with IOCParser API...")
+                scrapingIOCsPARSER(args.u[0], args.i[0])
+                print("[+] Done!")
+            else:
+                print("[+] Scraping with custom function...")
+                scrapingIOCs(args.u[0], args.i[0])
+                print("[+] Done!")
+        elif args.d:
+            print("Debugging... Creating txt files with get request of the URL...")
+            debugging(args.u[0])
+            print("[+] Done!")
         else:
-            print("[+] Scraping with custom API")
-            scrapingIOCs(args.u[0], args.i[0])
-    elif args.d:
-        debugging(args.u[0])
+            print("[x] Error! Specify the name for the IOC folder")
+            sys.exit()
     else:
-        print("[x] Specify the name for the IOC folder")
-        sys.exit()
-else:
-    print("algo va mal")
+        print("algo va mal")
 
+
+if __name__ == "__main__":
+    main()
