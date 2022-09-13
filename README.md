@@ -21,6 +21,7 @@ options:
 
 
 ## To-Do
+* Modularity
 * Update white list of domains. Implement an option (as argument) to select a custom white list
 * Print text for clarity of actions taken, such as creating files
 * Clean IOCs: Sometimes it includes legit IPs and strings that look like hashes but they aren't
