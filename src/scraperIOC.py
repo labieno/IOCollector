@@ -2,6 +2,7 @@
 import requests
 import re
 import os
+import sys
 import validators
 import tld
 from urllib.parse import urlparse
@@ -18,23 +19,23 @@ def scrapingIOCs(url, IOC_name):
     defangaded = r.text.replace("[.]", ".").replace("hxxp", "http")
     splited = re.split(';|,|<|>| |\n', defangaded)
 
-    # IPS
-    ips = re.findall(r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", defangaded)
-    ips = list(set(ips))
-    parent_path = "C:/Users/" + os.getlogin() + "/Downloads/"
+    # Setting workspace:
+    parent_path = "C:\\Users\\" + os.getlogin() + "\\Downloads\\"
     path = os.path.join(parent_path, IOC_name)
     try:
         os.mkdir(path)
         print("[+] Directory '% s' created" % path)
     except OSError as error: 
         print(error)
+        print("[x] Should delete the directory or choose another name")
+        sys.exit()
 
-    with open(path + '/IPs.txt', 'w') as f:
-        for ip in ips:
-            f.write(ip)
-            f.write("\n")
+
+
 
     # DOMAINS
+    pathdomains = os.path.join(path, 'domains.txt')
+
     # otra opcion es con la libreria validators
     def validaDomain(w):
         if re.match(r"^[A-Za-zÀ-ú\.0-9\-]{5,}$", w) and "." in w and w[0] != "." and w[1] != "." and w[-2] != "." and w[-1] != ".":
@@ -66,12 +67,16 @@ def scrapingIOCs(url, IOC_name):
                     result.append(d)
         return result
     
-    with open(path + '/domains.txt', 'w') as f:
-        for dom in whitelisting(domains):
-            f.write(dom)
-            f.write("\n")
-    
+    if len(whitelisting(domains)) > 0:
+        with open(pathdomains, 'w') as f:
+            for dom in whitelisting(domains):
+                f.write(dom)
+                f.write("\n")
+        print("     [+] File '% s' created" % pathdomains)
+
+
     # HASHES
+    pathhashes = os.path.join(path, 'hashes.txt')
 
     def findHashes(text):
         hashes = {}
@@ -83,36 +88,83 @@ def scrapingIOCs(url, IOC_name):
         hashes['md5'] = list(set(hashes['md5']))
         return hashes
 
-    with open(path + '/hashes.txt', 'w') as f:
-        for md5 in findHashes(defangaded)['md5']:
-            f.write(md5)
-            f.write("\n")
-        for sha1 in findHashes(defangaded)['sha1']:
-            f.write(sha1)
-            f.write("\n")
-        for sha256 in findHashes(defangaded)['sha256']:
-            f.write(sha256)
-            f.write("\n")
+    if len(findHashes(defangaded)['sha256']) > 0 or len(findHashes(defangaded)['sha1']) > 0 or len(findHashes(defangaded)['md5']) > 0:
+        with open(pathhashes, 'w') as f:
+            for md5 in findHashes(defangaded)['md5']:
+                f.write(md5)
+                f.write("\n")
+            for sha1 in findHashes(defangaded)['sha1']:
+                f.write(sha1)
+                f.write("\n")
+            for sha256 in findHashes(defangaded)['sha256']:
+                f.write(sha256)
+                f.write("\n")
+        print("     [+] File '% s' created" % pathhashes)
 
     #URLs
+    pathurls = os.path.join(path, 'urls.txt')
+
     def findURLs(text):
         urls = re.findall("https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)", text)
         urls = list(set(urls))
+        return urls
+
+    def whitelistingURLs(urls):
         #Whitelisting:
-        result = []
-        
+        legits = []
+        malicious = []
+        #result = [legits, malicious]
+
         for u in urls:
             t = urlparse(u).netloc
             t = '.'.join(t.split('.')[-2:])
             if t not in whitelistURLs:
-                result.append(u)
+                malicious.append(u)
+            else:
+                legits.append(u)
         
-        return result
 
-    with open(path + '/urls.txt', 'w') as f:
-        for l in findURLs(defangaded):
+        return [list(set(legits)), list(set(malicious))]
+
+    # LEGITS URLs (for testing)
+    pathurls0 = os.path.join(path, 'urls0.txt')
+    with open(pathurls0, 'w') as f:
+        for l in whitelistingURLs(findURLs(defangaded))[0]:
             f.write(l)
             f.write("\n")
+    
+    if len(whitelistingURLs(findURLs(defangaded))[1]) > 0:
+        with open(pathurls, 'w') as f:
+            for l in whitelistingURLs(findURLs(defangaded))[1]:
+                f.write(l)
+                f.write("\n")
+        print("     [+] File '% s' created" % pathurls)
+
+    
+    # IPS
+    pathips = os.path.join(path, 'ips.txt')
+
+    ips = re.findall(r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}", defangaded)
+    ips = list(set(ips))
+
+    wips = []
+    # Whitelisting IPs: searching for IPs in legit URLs
+    for ip in ips:
+        # if ip is in legit URL
+        t = 0
+        for legitUrl in whitelistingURLs(findURLs(defangaded))[0]:
+            if ip in legitUrl:
+                t = 1
+                break
+        if t == 0:
+            wips.append(ip)
+        
+    if len(wips) > 0:
+        with open(pathips, 'w') as f:
+            for ip in wips:
+                f.write(ip)
+                f.write("\n")
+        print("     [+] File '% s' created" % pathips)
 
 
 #IOCparser API -> GET request and call createLists
@@ -127,43 +179,70 @@ def scrapingIOCsPARSER(urli, IOC_name):
     'Content-Type': 'application/json'
     }
 
+
     # Para crear las listas de domains, urls, ips, hashes
     def createLists(name, response):
-        parent_path = "C:/Users/" + os.getlogin() + "/Downloads/"
+
+        # Setting workspace
+        parent_path = "C:\\Users\\" + os.getlogin() + "\\Downloads\\"
         path = os.path.join(parent_path, name)
         try:
             os.mkdir(path)
             print("[+] Directory '% s' created" % path)
         except OSError as error: 
             print(error)
+            print("[x] Should delete the directory or choose another name")
+            sys.exit()
 
-        with open(path + '/IPs.txt', 'w') as f:
-            for l in response.json()['data']['IPv4']:
-                f.write(l)
-                f.write("\n")
+        # IPs
+        pathips = os.path.join(path, 'ips.txt')
 
-        with open(path + '/domains.txt', 'w') as f:
-            for l in response.json()['data']['DOMAIN']:
-                f.write(l)
-                f.write("\n")
+        if len(response.json()['data']['IPv4']) > 0:
+            with open(pathips, 'w') as f:
+                for l in response.json()['data']['IPv4']:
+                    f.write(l)
+                    f.write("\n")
+            print("     [+] File '% s' created" % pathips)
+
+
+        # Domains
+        pathdomains = os.path.join(path, 'domains.txt')
+
+        if len(response.json()['data']['DOMAIN']) > 0:
+            with open(pathdomains, 'w') as f:
+                for l in response.json()['data']['DOMAIN']:
+                    f.write(l)
+                    f.write("\n")
+            print("     [+] File '% s' created" % pathdomains)
         
-        with open(path + '/urls.txt', 'w') as f:
-            for l in response.json()['data']['URL']:
-                f.write(l)
-                f.write("\n")
 
-        with open(path + '/hashes.txt', 'w') as f:
-            for l in response.json()['data']['FILE_HASH_MD5']:
-                f.write(l)
-                f.write("\n")
-            for l in response.json()['data']['FILE_HASH_SHA1']:
-                f.write(l)
-                f.write("\n")
-            for l in response.json()['data']['FILE_HASH_SHA256']:
-                f.write(l)
-                f.write("\n")
+        # Urls
+        pathurls = os.path.join(path, 'urls.txt')
+
+        if len(response.json()['data']['URL']) > 0:
+            with open(pathurls, 'w') as f:
+                for l in response.json()['data']['URL']:
+                    f.write(l)
+                    f.write("\n")
+            print("     [+] File '% s' created" % pathurls)
+
+
+        # Hashes
+        pathhashes = os.path.join(path, 'hashes.txt')
+
+        if len(response.json()['data']['FILE_HASH_MD5']) > 0 or len(response.json()['data']['FILE_HASH_SHA1']) > 0 or len(response.json()['data']['FILE_HASH_SHA256']) > 0:
+            with open(pathhashes, 'w') as f:
+                for l in response.json()['data']['FILE_HASH_MD5']:
+                    f.write(l)
+                    f.write("\n")
+                for l in response.json()['data']['FILE_HASH_SHA1']:
+                    f.write(l)
+                    f.write("\n")
+                for l in response.json()['data']['FILE_HASH_SHA256']:
+                    f.write(l)
+                    f.write("\n")
+            print("     [+] File '% s' created" % pathhashes)
             
-
 
     # Access the report
     response = requests.request("POST", url, headers=headers, json=payload)
