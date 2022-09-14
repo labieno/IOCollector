@@ -7,7 +7,7 @@ import requests
 import re
 import validators
 import tld
-import urllib
+#import urllib
 
 """
 Functions:
@@ -282,56 +282,52 @@ def twitterCollector(account):
 
 
 
-
-# Program logic (Create the parser)
-parser = argparse.ArgumentParser(prog = 'IOCollector',
-                                    #usage = '%(prog)s [options] URL/IOC_name',
-                                    description = 'Specify the URL of a report to gather IOCs and create .ioc files with the OpenIOC format.\nYou can also use the IOCParser API from https://iocparser.com/',
-                                    epilog = 'IOC Generator 0.3 Version')
-
-parser.version = 'IOC Generator 0.3 Version'
-parser.add_argument('-v',
-                       '--version',
-                       action='version',
-                       help='display current version')
-
-# For exclusivity
-group = parser.add_mutually_exclusive_group(required=True)
-
-# Arguments
-group.add_argument('-u',
-                       metavar='url',
-                       type=str,
-                       help='the URL of a report',
-                       action='store',
-                       nargs=1)
-
-parser.add_argument('-i',
-                       metavar='IOC_name',
-                       type=str,
-                       help='the name of your IOC',
-                       action='store',
-                       nargs=1)
-
-group.add_argument('-c',
-                       metavar='IOC_name',
-                       type=str,
-                       help='specify the name for the .ioc (CARMEN)',
-                       action='store',
-                       nargs=1)
-
-parser.add_argument('-p',
-                       help='Use the IOCParser API (by default it uses a custom scraping function)',
-                       action='store_true')
-
-parser.add_argument('-d',
-                       help='Show parsed html for debugging purposes.',
-                       action='store_true')
-
-
-
-
 def main():
+    # Program logic (Create the parser)
+    parser = argparse.ArgumentParser(prog = 'IOCollector',
+                                        #usage = '%(prog)s [options] URL/IOC_name',
+                                        description = 'Specify the URL of a report to gather IOCs and create .ioc files with the OpenIOC format.\nYou can also use the IOCParser API from https://iocparser.com/',
+                                        epilog = 'IOC Generator 0.3 Version')
+
+    parser.version = 'IOC Generator 0.3 Version'
+    parser.add_argument('-v',
+                        '--version',
+                        action='version',
+                        help='display current version')
+
+    # For exclusivity
+    group = parser.add_mutually_exclusive_group(required=True)
+
+    # Arguments
+    group.add_argument('-u',
+                        metavar='url',
+                        type=str,
+                        help='the URL of a report',
+                        action='store',
+                        nargs=1)
+
+    parser.add_argument('-i',
+                        metavar='IOC_name',
+                        type=str,
+                        help='the name of your IOC',
+                        action='store',
+                        nargs=1)
+
+    group.add_argument('-c',
+                        metavar='IOC_name',
+                        type=str,
+                        help='specify the name for the .ioc (CARMEN)',
+                        action='store',
+                        nargs=1)
+
+    parser.add_argument('-p',
+                        help='Use the IOCParser API (by default it uses a custom scraping function)',
+                        action='store_true')
+
+    parser.add_argument('-d',
+                        help='Show parsed html for debugging purposes.',
+                        action='store_true')
+
     # Execute the parse_args() method to look up the arguments an process them
     args = parser.parse_args()
 
