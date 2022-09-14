@@ -35,6 +35,10 @@ options:
 * Threat modeling (types of organizations targeted by groups)
 
 ## Changelog
+### 0.4 - 2022-09-14
+#### Added
+* Project Modularity
+
 ### 0.3 - 2022-09-13
 #### Added
 * Support for URL gathering
