@@ -64,9 +64,9 @@ def main():
     parser = argparse.ArgumentParser(prog = 'IOCollector',
                                         #usage = '%(prog)s [options] URL/IOC_name',
                                         description = 'Specify the URL of a report to gather IOCs and create .ioc files with the OpenIOC format.\nYou can also use the IOCParser API from https://iocparser.com/',
-                                        epilog = 'IOC Generator 0.3 Version')
+                                        epilog = 'IOC Generator 0.4 Version')
 
-    parser.version = 'IOC Generator 0.3 Version'
+    parser.version = 'IOC Generator 0.4 Version'
     parser.add_argument('-v',
                         '--version',
                         action='version',
