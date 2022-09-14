@@ -1,0 +1,5 @@
+argparse
+urllib
+requests
+validators
+tld
