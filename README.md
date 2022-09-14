@@ -37,6 +37,7 @@ options:
 #### Added
 * Project Modularity
 * Verbosity
+* IPs filtered by legit URLs
 
 ### 0.3 - 2022-09-13
 #### Added
