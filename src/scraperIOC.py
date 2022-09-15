@@ -16,7 +16,7 @@ def scrapingIOCs(url, IOC_name):
     # GET the html
     r = requests.get(url)
 
-    # Filter defang
+    # Filter defang (could be done with a dictionary, don't know if it's faster)
     defangaded = r.text.replace("[.]", ".").replace("hxxp", "http").replace("[:]", ":").replace("[://]", "://")
     splited = re.split(';|,|<|>| |\n', defangaded)
 
@@ -107,28 +107,32 @@ def scrapingIOCs(url, IOC_name):
 
     def findURLs(text):
         urls = re.findall("https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)", text)
-        urls2 = re.findall(r"https?://(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)", text)
-        urls.extend(urls2)
+        #urls2 = re.findall(r"https?://(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)", text)
+        #urls.extend(urls2)
         urls = list(set(urls))
         return urls
 
     def whitelistingURLs(urls):
-        #Whitelisting:
         legits = []
         malicious = []
         #result = [legits, malicious]
 
+
+        # MODO EXIGENTE (se debe cambiar)
+        whitelist = whitelistDomains
+        whitelist.extend(whitelistURLs)
+
+        
         for u in urls:
             d = urlparse(u).hostname
-            #d = '.'.join(d.split('.')[-2:])
             if len(d.split(".")) == 2:
-                if d not in whitelistURLs:
+                if d not in whitelist:
                     malicious.append(u)
                 else:
                     legits.append(u)
             else:
                 dd = d.split(".")
-                if dd[-2] + "." + dd[-1] not in whitelistURLs:
+                if dd[-2] + "." + dd[-1] not in whitelist:
                     malicious.append(u)
                 else:
                     legits.append(u)
