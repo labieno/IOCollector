@@ -49,7 +49,7 @@ def createIOC(name):
             with open(path_ips, 'r') as ips:
                 lines = ips.readlines()
                 for ip in lines:
-                    f.write("            <IndicatorItem condition=\"is\">\n                <Context document=\"FileItem\" search=\"PortItem/remoteIP\" type=\"mir\"/>\n                <Content type=\"string\">")
+                    f.write("            <IndicatorItem condition=\"is\">\n                <Context document=\"PortItem\" search=\"PortItem/remoteIP\" type=\"mir\"/>\n                <Content type=\"string\">")
                     f.write(ip.strip())
                     f.write("</Content>\n            </IndicatorItem>\n")
             f.write("        </Indicator>\n    </definition>\n</ioc>")
