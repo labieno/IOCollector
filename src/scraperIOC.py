@@ -8,15 +8,16 @@ import tld
 from urllib.parse import urlparse
 
 # To be upgraded
-whitelistDomains = ["microsoft.com", "w3.org", "kasperskycontenthub.com", "kaspersky.com", "welivesecurity.com", "google.com", "securelist.com", "securelist.lat", "securelist.ru", "zscaler.com", "orbisius.com", "facebook.com", "yahoo.com", "7-zip.org", "googletagmanager.com", "w.org", "github.com", "mitre.org", "schema.org", "openxmlformats.org", "geoffchappell.com"]
-whitelistURLs = ["microsoft.com", "w3.org", "kasperskycontenthub.com", "kaspersky.com", "welivesecurity.com", "google.com", "securelist.com", "securelist.lat", "securelist.ru", "zscaler.com", "orbisius.com", "facebook.com", "yahoo.com", "7-zip.org", "googletagmanager.com", "w.org", "mitre.org", "schema.org", "openxmlformats.org", "geoffchappell.com"]
+## whitelistDomains will whitelist the domains and whitelistURLs will whitelist domains and ULRs
+whitelistDomains = ["github.com", "twitter.com", "mega.io"]
+whitelistURLs = ["microsoft.com", "wordpress.org", "jsdelivr.net", "hausec.com", "proofpoint.com", "jquery.com", "themespiral.com", "cloudflareinsights.com", "googleapis.com", "thedfirreport.com", "fraunhofer.de", "wp.com", "gmpg.org", "stealthbits.com", "patreon.com", "w3.org", "kasperskycontenthub.com", "kaspersky.com", "welivesecurity.com", "google.com", "securelist.com", "securelist.lat", "securelist.ru", "zscaler.com", "orbisius.com", "facebook.com", "yahoo.com", "7-zip.org", "googletagmanager.com", "w.org", "mitre.org", "schema.org", "openxmlformats.org", "geoffchappell.com", "malwarebytes.com"]
 
 def scrapingIOCs(url, IOC_name):
     # GET the html
     r = requests.get(url)
 
     # Filter defang
-    defangaded = r.text.replace("[.]", ".").replace("hxxp", "http")
+    defangaded = r.text.replace("[.]", ".").replace("hxxp", "http").replace("[:]", ":").replace("[://]", "://")
     splited = re.split(';|,|<|>| |\n', defangaded)
 
     # Setting workspace:
@@ -29,7 +30,6 @@ def scrapingIOCs(url, IOC_name):
         print(error)
         print("[x] Should delete the directory or choose another name")
         sys.exit()
-
 
 
 
@@ -56,14 +56,15 @@ def scrapingIOCs(url, IOC_name):
 
     def whitelisting(list):
         result = []
-        
+        whitelist = whitelistDomains
+        whitelist.extend(whitelistURLs)
         for d in list:
             if len(d.split(".")) == 2:
-                if d not in whitelistDomains:
+                if d.lower() not in whitelist:
                     result.append(d)
             else:
                 dd = d.split(".")
-                if dd[-2] + "." + dd[-1] not in whitelistDomains:
+                if (dd[-2] + "." + dd[-1]).lower() not in whitelist:
                     result.append(d)
         return result
     
@@ -106,6 +107,8 @@ def scrapingIOCs(url, IOC_name):
 
     def findURLs(text):
         urls = re.findall("https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)", text)
+        urls2 = re.findall(r"https?://(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)", text)
+        urls.extend(urls2)
         urls = list(set(urls))
         return urls
 
@@ -116,14 +119,20 @@ def scrapingIOCs(url, IOC_name):
         #result = [legits, malicious]
 
         for u in urls:
-            t = urlparse(u).netloc
-            t = '.'.join(t.split('.')[-2:])
-            if t not in whitelistURLs:
-                malicious.append(u)
+            d = urlparse(u).hostname
+            #d = '.'.join(d.split('.')[-2:])
+            if len(d.split(".")) == 2:
+                if d not in whitelistURLs:
+                    malicious.append(u)
+                else:
+                    legits.append(u)
             else:
-                legits.append(u)
-        
-
+                dd = d.split(".")
+                if dd[-2] + "." + dd[-1] not in whitelistURLs:
+                    malicious.append(u)
+                else:
+                    legits.append(u)
+    
         return [list(set(legits)), list(set(malicious))]
 
     # LEGITS URLs (for testing)
