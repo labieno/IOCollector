@@ -10,8 +10,8 @@ def createIOC(name):
     path_domains = os.path.join(path, "domains.txt")
     path_urls = os.path.join(path, "urls.txt")
     if os.path.getsize(path_domains) > 0 or os.path.getsize(path_urls) > 0:
-        with open(path + name + ' domains.ioc', 'w') as f:
-            f.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<ioc xmlns=\"http://schemas.mandiant.com/2010/ioc\">\n    <short_description>" + name + "</short_description>\n" + "    <description>" + description + "</description>\n    <authored_date xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>\n    <definition>\n        <Indicator operator=\"OR\">\n")
+        with open(path + name + ' Domains.ioc', 'w') as f:
+            f.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<ioc xmlns=\"http://schemas.mandiant.com/2010/ioc\">\n    <short_description>" + name + " Domains" + "</short_description>\n" + "    <description>" + description + "</description>\n    <authored_date xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>\n    <definition>\n        <Indicator operator=\"OR\">\n")
             with open(path_domains, 'r') as domains:
                 lines = domains.readlines()
                 for d in lines:
@@ -31,8 +31,8 @@ def createIOC(name):
     # Crea el .ioc de hashes
     path_hashes = os.path.join(path, "hashes.txt")
     if os.path.getsize(path_hashes) > 0:
-        with open(path + name + ' hashes.ioc', 'w') as f:
-            f.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<ioc xmlns=\"http://schemas.mandiant.com/2010/ioc\">\n    <short_description>" + name + "</short_description>\n" + "    <description>" + description + "</description>\n    <authored_date xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>\n    <definition>\n        <Indicator operator=\"OR\">\n")
+        with open(path + name + ' Hashes.ioc', 'w') as f:
+            f.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<ioc xmlns=\"http://schemas.mandiant.com/2010/ioc\">\n    <short_description>" + name " Hashes" + "</short_description>\n" + "    <description>" + description + "</description>\n    <authored_date xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>\n    <definition>\n        <Indicator operator=\"OR\">\n")
             with open(path_hashes, 'r') as hashes:
                 lines = hashes.readlines()
                 for h in lines:
@@ -44,8 +44,8 @@ def createIOC(name):
     # Crea el .ioc de IPsv4
     path_ips = os.path.join(path, "IPs.txt")
     if os.path.getsize(path_ips) > 0:
-        with open(path + name + ' ips.ioc', 'w') as f:
-            f.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<ioc xmlns=\"http://schemas.mandiant.com/2010/ioc\">\n    <short_description>" + name + "</short_description>\n" + "    <description>" + description + "</description>\n    <authored_date xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>\n    <definition>\n        <Indicator operator=\"OR\">\n")
+        with open(path + name + ' IPs.ioc', 'w') as f:
+            f.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<ioc xmlns=\"http://schemas.mandiant.com/2010/ioc\">\n    <short_description>" + name " IPs" + "</short_description>\n" + "    <description>" + description + "</description>\n    <authored_date xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>\n    <definition>\n        <Indicator operator=\"OR\">\n")
             with open(path_ips, 'r') as ips:
                 lines = ips.readlines()
                 for ip in lines:
