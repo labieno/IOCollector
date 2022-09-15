@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 # To be upgraded
 ## whitelistDomains will whitelist the domains and whitelistURLs will whitelist domains and ULRs
 whitelistDomains = ["github.com", "twitter.com", "mega.io"]
-whitelistURLs = ["microsoft.com", "wordpress.org", "jsdelivr.net", "hausec.com", "proofpoint.com", "jquery.com", "themespiral.com", "cloudflareinsights.com", "googleapis.com", "thedfirreport.com", "fraunhofer.de", "wp.com", "gmpg.org", "stealthbits.com", "patreon.com", "w3.org", "kasperskycontenthub.com", "kaspersky.com", "welivesecurity.com", "google.com", "securelist.com", "securelist.lat", "securelist.ru", "zscaler.com", "orbisius.com", "facebook.com", "yahoo.com", "7-zip.org", "googletagmanager.com", "w.org", "mitre.org", "schema.org", "openxmlformats.org", "geoffchappell.com", "malwarebytes.com"]
+whitelistURLs = ["pypi.org", "reddit.com", "linkedin.com", "sentinelone.com", "facebook.net", "onesignal.com", "typography.com", "googleoptimize.com", "licdn.com", "smush.cdn", "tvsquared.com", "gravatar.com", "microsoft.com", "wordpress.org", "jsdelivr.net", "hausec.com", "proofpoint.com", "jquery.com", "themespiral.com", "cloudflareinsights.com", "googleapis.com", "thedfirreport.com", "fraunhofer.de", "wp.com", "gmpg.org", "stealthbits.com", "patreon.com", "w3.org", "kasperskycontenthub.com", "kaspersky.com", "welivesecurity.com", "google.com", "securelist.com", "securelist.lat", "securelist.ru", "zscaler.com", "orbisius.com", "facebook.com", "yahoo.com", "7-zip.org", "googletagmanager.com", "w.org", "mitre.org", "schema.org", "openxmlformats.org", "geoffchappell.com", "malwarebytes.com"]
 
 def scrapingIOCs(url, IOC_name):
     # GET the html
