@@ -93,7 +93,7 @@ def main():
     group.add_argument('-c',
                         metavar='IOC_name',
                         type=str,
-                        help='specify the name for the .ioc (CARMEN)',
+                        help='specify the name for the .ioc',
                         action='store',
                         nargs=1)
 
